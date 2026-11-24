@@ -53,10 +53,92 @@ Step 7: Save Your Work
 
 
 ## Code:
+```
+#include "ArduinoGraphics.h"
+#include "Arduino_LED_Matrix.h"
 
+ArduinoLEDMatrix matrix;
 
+#define TRIG_PIN 9
+#define ECHO_PIN 10
+
+// 3x5 font for digits
+const byte digits[10][5] = {
+  {0b111,0b101,0b101,0b101,0b111}, //0
+  {0b010,0b110,0b010,0b010,0b111}, //1
+  {0b111,0b001,0b111,0b100,0b111}, //2
+  {0b111,0b001,0b111,0b001,0b111}, //3
+  {0b101,0b101,0b111,0b001,0b001}, //4
+  {0b111,0b100,0b111,0b001,0b111}, //5
+  {0b111,0b100,0b111,0b101,0b111}, //6
+  {0b111,0b001,0b010,0b100,0b100}, //7
+  {0b111,0b101,0b111,0b101,0b111}, //8
+  {0b111,0b101,0b111,0b001,0b111}  //9
+};
+
+void drawDigit(int digit, int x, int y)
+{
+  for (int row = 0; row < 5; row++)
+  {
+    for (int col = 0; col < 3; col++)
+    {
+      if (digits[digit][row] & (1 << (2 - col)))
+        matrix.point(x + col, y + row);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  matrix.begin();
+}
+
+void loop() {
+
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  float distance = duration * 0.0343 / 2.0;
+
+  int d = (int)(distance + 0.5);
+
+  if (d > 99) d = 99;
+  if (d < 0) d = 0;
+
+  Serial.print("Distance: ");
+  Serial.print(d);
+  Serial.println(" cm");
+
+  int tens = d / 10;
+  int ones = d % 10;
+
+  matrix.beginDraw();
+  matrix.clear();
+  matrix.stroke(0xFFFFFFFF);
+
+  // Left digit
+  drawDigit(tens, 1, 1);
+
+  // Right digit
+  drawDigit(ones, 7, 1);
+
+  matrix.endDraw();
+
+  delay(100);
+}
+```
 ## Output:
  
+![Uploading image.png…]()
 
 
 ## Result
