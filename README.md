@@ -19,7 +19,8 @@ Tinkercad provides a simulation environment where this circuit can be virtually 
 
 
 ## Circuit Diagram:
- 
+ <img width="599" height="359" alt="image" src="https://github.com/user-attachments/assets/810c9b43-ebf2-42ae-8a4a-67861aa57f5c" />
+
 ## Procedure: //Modify the procedure based on your circuit
 
 Step 1: Set Up the Tinkercad Environment
@@ -54,91 +55,37 @@ Step 7: Save Your Work
 
 ## Code:
 ```
-#include "ArduinoGraphics.h"
-#include "Arduino_LED_Matrix.h"
+#define ultraPin 7
 
-ArduinoLEDMatrix matrix;
-
-#define TRIG_PIN 9
-#define ECHO_PIN 10
-
-// 3x5 font for digits
-const byte digits[10][5] = {
-  {0b111,0b101,0b101,0b101,0b111}, //0
-  {0b010,0b110,0b010,0b010,0b111}, //1
-  {0b111,0b001,0b111,0b100,0b111}, //2
-  {0b111,0b001,0b111,0b001,0b111}, //3
-  {0b101,0b101,0b111,0b001,0b001}, //4
-  {0b111,0b100,0b111,0b001,0b111}, //5
-  {0b111,0b100,0b111,0b101,0b111}, //6
-  {0b111,0b001,0b010,0b100,0b100}, //7
-  {0b111,0b101,0b111,0b101,0b111}, //8
-  {0b111,0b101,0b111,0b001,0b111}  //9
-};
-
-void drawDigit(int digit, int x, int y)
-{
-  for (int row = 0; row < 5; row++)
-  {
-    for (int col = 0; col < 3; col++)
-    {
-      if (digits[digit][row] & (1 << (2 - col)))
-        matrix.point(x + col, y + row);
-    }
-  }
-}
+long duration;
+int distance;
 
 void setup() {
+  pinMode(ultraPin, OUTPUT);
   Serial.begin(9600);
-
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-
-  matrix.begin();
 }
 
 void loop() {
-
-  digitalWrite(TRIG_PIN, LOW);
+  pinMode(ultraPin, OUTPUT);
+  digitalWrite(ultraPin, LOW);
   delayMicroseconds(2);
-
-  digitalWrite(TRIG_PIN, HIGH);
+  digitalWrite(ultraPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
+  digitalWrite(ultraPin, LOW);
 
-  long duration = pulseIn(ECHO_PIN, HIGH);
-  float distance = duration * 0.0343 / 2.0;
+  pinMode(ultraPin, INPUT);
+  duration = pulseIn(ultraPin, HIGH);
 
-  int d = (int)(distance + 0.5);
-
-  if (d > 99) d = 99;
-  if (d < 0) d = 0;
-
+  distance = duration * 0.034 / 2;
   Serial.print("Distance: ");
-  Serial.print(d);
+  Serial.print(distance);
   Serial.println(" cm");
-
-  int tens = d / 10;
-  int ones = d % 10;
-
-  matrix.beginDraw();
-  matrix.clear();
-  matrix.stroke(0xFFFFFFFF);
-
-  // Left digit
-  drawDigit(tens, 1, 1);
-
-  // Right digit
-  drawDigit(ones, 7, 1);
-
-  matrix.endDraw();
-
-  delay(100);
 }
 ```
 ## Output:
- 
-![Uploading image.png…]()
+
+<img width="597" height="432" alt="image" src="https://github.com/user-attachments/assets/478b1832-0941-41a4-b8c0-0eae81771fb9" />
+<img width="735" height="249" alt="image" src="https://github.com/user-attachments/assets/a5fa20df-5fff-483e-930c-5d8d990a6306" />
 
 
 ## Result
